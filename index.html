@@ -1,0 +1,79 @@
+<meta charset="utf8" />
+<html>
+  <script src='./sql-wasm.js'></script>
+  <script>
+    let db = null;
+    const table = "table1";
+    const dbPath = "./test.sqlite";
+    
+    const sqlPromise = initSqlJs({
+      locateFile: filename => `./${filename}`
+    });
+    const dataPromise = fetch(dbPath).then(res => res.arrayBuffer());
+    
+    Promise.all([sqlPromise, dataPromise]).then(values => {
+      const SQL = values[0];
+      const buf = values[1];
+      db = new SQL.Database(new Uint8Array(buf));
+      initializeSelect();
+    });
+    
+    function initializeSelect() {
+      if (!db) return;
+      const res = db.exec("SELECT * FROM " + table + " LIMIT 1");
+      if (res.length < 1) return;
+      const cols = res[0]["columns"];
+      const select = document.getElementById("mySelect");
+      cols.forEach(col => {
+        const option = document.createElement("option");
+        option.text = col;
+        select.add(option);
+      });
+    }
+    
+    function createTable(query) {
+      const tableId = "myTable";
+      const oldTable = document.getElementById(tableId);
+      if (oldTable) document.body.removeChild(oldTable);
+      const table = document.createElement("table");
+      table.setAttribute("id", tableId);
+      document.body.appendChild(table);
+      
+      if (!db) return;
+      const res = db.exec(query);
+      if (res.length < 1) return;
+      const cols = res[0]["columns"];
+      const rows = res[0]["values"];
+      
+      rows.forEach((values, i) => {
+        const row = table.insertRow(i);
+        values.forEach((val, j) => {
+          const cell = row.insertCell(j);
+          cell.innerHTML = val;
+        });
+      });
+      
+      const header = table.createTHead();
+      const headerRow = header.insertRow(0);
+      cols.forEach((col, i) => {
+        const cell = headerRow.insertCell(i);
+        cell.innerHTML = col;
+      });
+    }
+    
+    function searchDb() {    
+      const col = document.getElementById("mySelect").value;
+      const val = document.getElementById("mySearch").value;
+      let query = "SELECT * FROM " + table;
+      if (val) query += " WHERE " + col + " LIKE '%" + val.trim() + "%'";
+      createTable(query);
+    }
+  </script>
+  <body>
+    <form>
+      <select id="mySelect"></select>
+      <input type="search" id="mySearch" name="mySearch"><br><br>
+      <button type="button" onClick="searchDb()">Search</button>
+    </form>
+  </body>
+</html>
