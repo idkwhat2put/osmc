@@ -42,16 +42,14 @@
       
       if (!db) return;
       const res = db.exec(query);
-      if (res.length < 1) return;
-      const cols = res[0]["columns"];
-      const rows = res[0]["values"];
-      
-      if (rows.length < 1) {
+      if (res.length < 1) {
         const row = table.insertRow(0);
         const cell = row.insertCell(0);
         cell.innterHTML = "No results";
         return;
       }
+      const cols = res[0]["columns"];
+      const rows = res[0]["values"];
       
       rows.forEach((values, i) => {
         const row = table.insertRow(i);
