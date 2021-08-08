@@ -40,16 +40,17 @@
       table.setAttribute("id", tableId);
       document.body.appendChild(table);
       
+      const message = document.getElementById("myMessage");
+      message.innerHTML = "No results";
+      
       if (!db) return;
       const res = db.exec(query);
-      if (res.length < 1) {
-        const row = table.insertRow(0);
-        const cell = row.insertCell(0);
-        cell.innterHTML = "No results";
-        return;
-      }
+      if (res.length < 1) return;
       const cols = res[0]["columns"];
       const rows = res[0]["values"];
+      if (rows.length < 1) return;
+      
+      message.innerHTML = "";
       
       rows.forEach((values, i) => {
         const row = table.insertRow(i);
@@ -83,5 +84,6 @@
     <select id="mySelect"></select>
     <input type="text" id="mySearch" onkeypress="onKeyPress(event)"><br><br>
     <button type="button" onClick="searchDb()">Search</button>
+    <p id="myMessage"></p>
   </body>
 </html>
