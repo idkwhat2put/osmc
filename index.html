@@ -46,6 +46,13 @@
       const cols = res[0]["columns"];
       const rows = res[0]["values"];
       
+      if (rows.length < 1) {
+        const row = table.insertRow(0);
+        const cell = row.insertCell(0);
+        cell.innterHTML = "No results";
+        return;
+      }
+      
       rows.forEach((values, i) => {
         const row = table.insertRow(i);
         values.forEach((val, j) => {
