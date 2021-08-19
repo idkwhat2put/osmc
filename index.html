@@ -3,6 +3,7 @@
   <script src='./sql-wasm.js'></script>
   <script>
     let db = null;
+    let columns = [];
     const table = "table1";
     const dbPath = "./test.sqlite";
     
@@ -15,21 +16,21 @@
       const SQL = values[0];
       const buf = values[1];
       db = new SQL.Database(new Uint8Array(buf));
-      initializeSelect();
+      initialize();
     });
     
-    function initializeSelect() {
+    function initialize() {
       if (!db) return;
       const res = db.exec("SELECT * FROM " + table + " LIMIT 1");
       if (res.length < 1) return;
-      const cols = res[0]["columns"];
+      columns = res[0]["columns"];
+      const options = [""].concat(columns);
       const select = document.getElementById("mySelect");
-      cols.forEach(col => {
+      options.forEach(opt => {
         const option = document.createElement("option");
-        option.text = col;
+        option.text = opt;
         select.add(option);
       });
-      if (cols.length > 1) select.selectedIndex = 1;
     }
     
     function createTable(query) {
@@ -71,8 +72,17 @@
     function searchDb() {    
       const col = document.getElementById("mySelect").value;
       const val = document.getElementById("mySearch").value;
+      let cols = columns;
+      if (col) cols = [col];
       let query = "SELECT * FROM " + table;
-      if (val) query += " WHERE " + col + " LIKE '%" + val.trim() + "%'";
+      if (val) {
+        cols.forEach((col, i) => {
+          const condition = col + " LIKE '%" + val.trim() + "%'";
+          if (i == 0) query += " WHERE " + condition;
+          else query += " OR " + condition;
+        });
+      }
+      console.log(query);
       createTable(query);
     }
     
