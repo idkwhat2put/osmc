@@ -21,7 +21,7 @@
     
     function initialize() {
       if (!db) return;
-      const res = db.exec("SELECT * FROM " + table + " LIMIT 1");
+      const res = db.exec("SELECT * FROM " + table + " ORDER BY rowid DESC LIMIT 1");
       if (res.length < 1) return;
       columns = res[0]["columns"];
       columns.pop();
@@ -33,7 +33,7 @@
         select.add(option);
       });
       const message = document.getElementById("myMessage");
-      message.innerHTML = "Latest: " + res[0]["values"][0];
+      message.innerHTML = "Latest: " + res[0]["values"][0][0];
     }
     
     function createTable(query) {
