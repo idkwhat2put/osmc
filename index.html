@@ -32,6 +32,8 @@
         option.text = opt;
         select.add(option);
       });
+      const message = document.getElementById("myMessage");
+      message.innerHTML = "Latest: " + res[0]["values"][0];
     }
     
     function createTable(query) {
