@@ -21,9 +21,10 @@
     
     function initialize() {
       if (!db) return;
-      const res = db.exec("SELECT * FROM " + table + " LIMIT 1");
+      const res = db.exec("SELECT () FROM " + table + " LIMIT 1");
       if (res.length < 1) return;
       columns = res[0]["columns"];
+      columns.pop();
       const options = [""].concat(columns);
       const select = document.getElementById("mySelect");
       options.forEach(opt => {
@@ -48,6 +49,7 @@
       const res = db.exec(query);
       if (res.length < 1) return;
       const cols = res[0]["columns"];
+      cols.pop();
       const rows = res[0]["values"];
       if (rows.length < 1) return;
       
@@ -55,6 +57,7 @@
       
       rows.forEach((values, i) => {
         const row = table.insertRow(i);
+        values.pop();
         values.forEach((val, j) => {
           const cell = row.insertCell(j);
           cell.innerHTML = val;
